@@ -70,8 +70,8 @@ def get_eval_txt_dataset(args, max_txt_length=24):
         input_filename,
         max_txt_length=max_txt_length, samples=args.eval_samples)
     num_samples = len(dataset)
-    #! Sequential 就是默认的 Sampler，就是顺序采样(就是按顺序得到所有的 batches)
-    #! eval 的时候不是 distributed 的
+
+    #! eval not using distributed 
     sampler = SequentialSampler(dataset)
 
     dataloader = DataLoader(

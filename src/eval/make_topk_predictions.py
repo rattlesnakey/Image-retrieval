@@ -75,7 +75,6 @@ if __name__ == "__main__":
                 score_tuples = []
                 text_feat_tensor = torch.tensor([text_feat], dtype=torch.float).cuda() # [1, feature_dim]
                 idx = 0
-                #! 按 batch 为单位
                 while idx < len(image_ids): 
                     img_feats_tensor = torch.from_numpy(image_feats_array[idx : min(idx + args.eval_batch_size, len(image_ids))]).cuda() # [batch_size, feature_dim]
                     batch_scores = text_feat_tensor @ img_feats_tensor.t() # [1, batch_size]

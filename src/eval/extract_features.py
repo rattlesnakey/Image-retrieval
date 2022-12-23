@@ -106,7 +106,6 @@ if __name__ == "__main__":
     for name in sorted(vars(args)):
         val = getattr(args, name)
         print(f"  {name}: {val}")
-    #! 这里是自己手动传的
     args.gpu = 0
     torch.cuda.set_device(args.gpu)
 
@@ -118,11 +117,10 @@ if __name__ == "__main__":
         model_info = json.load(f)
     model_info['text_smoothing'] = "False"
     model = CLIP(**model_info)
-    #! 先转成 16
     convert_weights(model)    
 
     # See https://discuss.pytorch.org/t/valueerror-attemting-to-unscale-fp16-gradients/81372
-    #! amp 和 fp32 都是到 32
+    #! using amp 
     if args.precision == "amp" or args.precision == "fp32":
         #! 如果有指定 amp 的话再转回 32
         convert_models_to_fp32(model)
@@ -131,7 +129,6 @@ if __name__ == "__main__":
         convert_weights(model)
 
     # Get data.
-    #! 这边对 data 进行 sample
     if args.extract_image_feats:
         print("Preparing image inference dataset.")
         img_data = get_eval_img_dataset(args)
@@ -144,12 +141,12 @@ if __name__ == "__main__":
     assert os.path.exists(args.resume), "The checkpoint file {} not exists!".format(args.resume)
     # Map model to be loaded to specified single gpu.
     loc = "cuda:{}".format(args.gpu)
-    #! checkpoint 的东西先放到 cpu 
+
     checkpoint = torch.load(args.resume, map_location='cpu')
     start_epoch = checkpoint["epoch"]
     sd = checkpoint["state_dict"]
     if next(iter(sd.items()))[0].startswith('module'):
-        #! 因为 DDP 会多一个 module, 所以 evaluate 单机的时候就得把它去掉
+
         sd = {k[len('module.'):]: v for k, v in sd.items()}
     model.load_state_dict(sd)
     print(
@@ -160,7 +157,7 @@ if __name__ == "__main__":
     if args.extract_image_feats:
         print('Make inference for images...')
         if args.image_feat_output_path is None:
-            #! 如果没
+
             args.image_feat_output_path = "{}.img_feat.jsonl".format(args.image_data[:-4])
         write_cnt = 0
         with open(args.image_feat_output_path, "w") as fout:

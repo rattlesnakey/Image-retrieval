@@ -67,7 +67,7 @@ class BertConfig(object):
                  layer_norm_eps=1e-12,
                  output_attentions=False,
                  output_hidden_states=False,
-                 #! 加了 Text Smoothing
+                 #! Add Text Smoothing
                  text_smoothing=False
                  ):
         self.vocab_size = vocab_size_or_config_json_file

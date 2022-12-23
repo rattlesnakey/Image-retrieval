@@ -1,13 +1,8 @@
-# MUGE Multimodal Retrieval Track
+# Multimodal Retrieval Track
 
-This repo is implemented based on the **[open_clip project](https://github.com/mlfoundations/open_clip)**, with modifications to adapt to the [Chinese Multimodal Retrieval task](https://tianchi.aliyun.com/competition/entrance/532031/introduction)
+This repo is the 7th strategy in [Chinese Multimodal Retrieval task](https://tianchi.aliyun.com/competition/entrance/532031/introduction)
 
-## Requirements and Installation
-This repo is successfully tested on the following environment:
-
-* python == 3.6.4
-* pytorch == 1.7.1
-* CUDA Version == 10.2
+## Setup
 
 To install the requirements, run the following command:
 
@@ -25,33 +20,34 @@ conda env create -f environment.yaml
 
 ## Getting Started
 
-Assume the downloaded dataset and downloaded pretrained weights are placed under this directory `${DATAPATH}`. The following experiment is performed on a single server with 8 V100-16G GPUs.
+Assume the downloaded dataset and downloaded pretrained weights are placed under this directory `${DATAPATH}`. The following experiment is performed on a single server with 8 2080Ti GPUs.
 
-### Prepare CLIP and BERT Weights
+### Prepare ViT and BERT Pretrained Weights
 
-In this repo, we build a [CLIP](https://arxiv.org/abs/2103.00020) model and employ pretrained Openai ViT-B-16 ([download](https://openaipublic.azureedge.net/clip/models/5806e77cd80f8b59890b7e101eabd078d9fb84e6937f9e85e4ecb61988df416f/ViT-B-16.pt)) and Chinese RoBERTa (ymcui's [project](https://github.com/ymcui/Chinese-BERT-wwm), [download](https://drive.google.com/file/d/1-2vEZfIFCdM1-vJ3GD6DlSyKT4eVXMKq/view?usp=drive_open)) weights to initialize the image-side and text-side, respectively.
+- pretrained Openai ViT-B-16 ([download](https://openaipublic.azureedge.net/clip/models/5806e77cd80f8b59890b7e101eabd078d9fb84e6937f9e85e4ecb61988df416f/ViT-B-16.pt))
+- Chinese RoBERTa (ymcui's [project](https://github.com/ymcui/Chinese-BERT-wwm)
+download weights to initialize the image-encoder and text-encoder, respectively.
 
-For ViT-B-16 weight, run the following command to transform the checkpoint format from a JIT-model to state_dict:
+For ViT-B-16 weight, run the following command to transform the checkpoint format from a JIT-model to state_dict, specific shell code in transform_model.sh:
 ```
 python src/preprocess/transform_openai_pretrain_weights.py \ 
     --raw-ckpt-path ${DATAPATH}/ViT-B-16.pt \
     --new-ckpt-path ${DATAPATH}/ViT-B-16.state_dict.pt
 ```
+you can just run the command `transform_model.sh`
 
-For RoBERTa weight, unzip the downloaded zipfile and place the `pytorch_model.bin` under the `${DATAPATH}`.
 
 
 ### Prepare the Transformed Images
 
-The images need to be transformed to feed into the CLIP model. However, online transformation during training and inference is slow. Here we perform the image transformation before the experiment. 
+The images need to be transformed to feed into the CLIP model. However, online transformation during training and inference is slow. Here we perform the image transformation before the experiment, the specific shell code in preprocess.sh: 
 
 ```
 python src/preprocess/transform_images.py \ 
     --data_dir ${DATAPATH} \
     --image_resolution 224
 ```
-
-The above code is in preprocess.sh, you can just run the command `bash preprocess.sh` to transform image dataset, it will cost around 100G disk space.
+you can just run the command `bash preprocess.sh`
 
 
 
@@ -99,7 +95,6 @@ python -u src/training/main.py \
 
 The training will cost a few hours. The log and checkpoint files will be saved under the `logs` directory.
 
-**Caution**: Since the training convergence and stablility of in-batch contrastive learning are highly dependent on the global batch-size. If you use a much smaller batch-size than the default setting (32 per-GPU \* 8 GPU), please try to use a smaller learning rate to avoid training divergence. (related [issue](https://github.com/MUGE-2021/image-retrieval-baseline/issues/1)). We recommend to use more GPUs and larger global batch-size to achieve more stable convergence and better model performance.
 
 ### Inference and Evaluation
 
@@ -180,95 +175,4 @@ done
 
 ```
 
-
-
-
-
-## Reference
-
-```
-@inproceedings{M6,
-  author    = {Junyang Lin and
-               Rui Men and
-               An Yang and
-               Chang Zhou and
-               Ming Ding and
-               Yichang Zhang and
-               Peng Wang and
-               Ang Wang and
-               Le Jiang and
-               Xianyan Jia and
-               Jie Zhang and
-               Jianwei Zhang and
-               Xu Zou and
-               Zhikang Li and
-               Xiaodong Deng and
-               Jie Liu and
-               Jinbao Xue and
-               Huiling Zhou and
-               Jianxin Ma and
-               Jin Yu and
-               Yong Li and
-               Wei Lin and
-               Jingren Zhou and
-               Jie Tang and
-               Hongxia Yang},
-  title     = {{M6:} {A} Chinese Multimodal Pretrainer},
-  year      = {2021},
-  booktitle = {Proceedings of the 27th ACM SIGKDD Conference on Knowledge Discovery & Data Mining},
-  pages     = {3251–3261},
-  numpages  = {11},
-  location  = {Virtual Event, Singapore},
-}
-
-@article{M6-T,
-  author    = {An Yang and
-               Junyang Lin and
-               Rui Men and
-               Chang Zhou and
-               Le Jiang and
-               Xianyan Jia and
-               Ang Wang and
-               Jie Zhang and
-               Jiamang Wang and
-               Yong Li and
-               Di Zhang and
-               Wei Lin and
-               Lin Qu and
-               Jingren Zhou and
-               Hongxia Yang},
-  title     = {{M6-T:} Exploring Sparse Expert Models and Beyond},
-  journal   = {CoRR},
-  volume    = {abs/2105.15082},
-  year      = {2021}
-}
-
-@software{ilharco_gabriel_2021_5143773,
-  author       = {Ilharco, Gabriel and
-                  Wortsman, Mitchell and
-                  Carlini, Nicholas and
-                  Taori, Rohan and
-                  Dave, Achal and
-                  Shankar, Vaishaal and
-                  Namkoong, Hongseok and
-                  Miller, John and
-                  Hajishirzi, Hannaneh and
-                  Farhadi, Ali and
-                  Schmidt, Ludwig},
-  title        = {OpenCLIP},
-  month        = jul,
-  year         = 2021,
-  note         = {If you use this software, please cite it as below.},
-  publisher    = {Zenodo},
-  version      = {0.1},
-  doi          = {10.5281/zenodo.5143773},
-  url          = {https://doi.org/10.5281/zenodo.5143773}
-}
-
-@inproceedings{Radford2021LearningTV,
-  title={Learning Transferable Visual Models From Natural Language Supervision},
-  author={Alec Radford and Jong Wook Kim and Chris Hallacy and A. Ramesh and Gabriel Goh and Sandhini Agarwal and Girish Sastry and Amanda Askell and Pamela Mishkin and Jack Clark and Gretchen Krueger and Ilya Sutskever},
-  booktitle={ICML},
-  year={2021}
-}
-```
+The train, evaluation and inference are all aggregated into `train.sh`, just run `bash train.sh`

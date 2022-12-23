@@ -3,7 +3,6 @@
 from typing import Union, List
 
 import torch
-#! clip 文件夹下面的 __init__ 文件
 from clip import _tokenizer
 from clip.model import restore_model
 
@@ -19,7 +18,6 @@ def load(model, device: Union[str, torch.device] = "cuda" if torch.cuda.is_avail
     restore_model(model, clip_state_dict, bert_state_dict).to(device)
 
     if str(device) == "cpu":
-        #! 这个应该是把模型里面所有的参数都转化成 float 类型
         model.float()
     return model
 

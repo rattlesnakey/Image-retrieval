@@ -240,7 +240,7 @@ class VisualTransformer(nn.Module):
 
         return x
 
-#! CLIP 就是 Load BERT 和 Vision Transformer 进来
+
 class CLIP(nn.Module):
     def __init__(self,
                  embed_dim: int,
@@ -302,7 +302,7 @@ class CLIP(nn.Module):
             type_vocab_size=text_type_vocab_size,
             initializer_range=text_initializer_range,
             layer_norm_eps=1e-12,
-            text_smoothing=text_smoothing,
+            text_smoothing=text_smoothing, #! text smoothing
         )
         self.bert = BertModel(self.bert_config)
 
@@ -343,7 +343,7 @@ class CLIP(nn.Module):
     def encode_text(self, text, text_smoothing=False):
         pad_index = self.tokenizer.vocab['[PAD]']
         attn_mask = text.ne(pad_index).type(self.dtype)
-
+        #! text smoothing
         if text_smoothing:
             x, input_probs = self.bert(text, attention_mask=attn_mask)[0].type(self.dtype) # [batch_size, seq_length, hidden_size]
             x = x[:, 0, :] @ self.text_projection

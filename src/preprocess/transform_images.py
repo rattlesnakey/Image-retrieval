@@ -34,7 +34,7 @@ def build_transform(resolution):
 
 if __name__ == "__main__":
     args = parse_args()
-    #! 只是把数据读进来然后保存而已
+    #! Load image and transform to npz 
     transform = build_transform(args.image_resolution)
     train_path = os.path.join(args.data_dir, "MR_train_imgs.tsv")
     val_path = os.path.join(args.data_dir, "MR_valid_imgs.tsv")
@@ -50,7 +50,6 @@ if __name__ == "__main__":
                 image_array = transform(image).numpy()
                 image_dict[img_id] = image_array
         output_path = "{}.{}.npz".format(path[:-4], args.image_resolution)
-        #! 保存每张图片编码后的 array
         np.savez(output_path, **image_dict)
         print("finished transforming {} images for {} split, the output is saved at {}".format(len(image_dict), split, output_path))
     print("done!")

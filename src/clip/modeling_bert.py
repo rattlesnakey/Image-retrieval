@@ -442,6 +442,7 @@ class BertModel(BertPreTrainedModel):
                                        head_mask=head_mask)
         sequence_output = encoder_outputs[0]
         pooled_output = self.pooler(sequence_output)
+        #! for Text smoothing logits
         if self.MLMHead:
             prediction_scores = self.MLMHead(sequence_output)
             #! return logits 

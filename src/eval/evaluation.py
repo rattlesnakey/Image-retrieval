@@ -85,7 +85,7 @@ def report_score(r1, r5, r10, out_p):
 def read_reference(path):
     fin = open(path)
     reference = dict()
-    #! samples 1000 条
+    #! samples 1000 
     i = 0
     for line in fin:
         line = line.strip()
@@ -147,8 +147,7 @@ if __name__=="__main__":
         for qid in reference.keys():
             ground_truth_ids = set(reference[qid])
             top10_pred_ids = predictions[qid]
-            #! 可能得通过投票的方式
-            #! 就是遍历每个 list，然后看不同模型预测的排第一，排前五的数量进行统计，然后整合一下得到一个最终版本
+            #! compute score
             if any([idx in top10_pred_ids[:1] for idx in ground_truth_ids]):
                 r1_stat += 1
             if any([idx in top10_pred_ids[:5] for idx in ground_truth_ids]):

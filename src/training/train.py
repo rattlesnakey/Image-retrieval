@@ -12,11 +12,11 @@ import torch.distributed as dist
 import torch.nn.functional as F
 import logging
 
-from src.tricks.AWP import AWP
+from AWP import AWP
 
 def is_master(args):
     return (not args.distributed) or args.gpu == 0
-
+#! group contrastive 
 def GroupContrastive_loss(text_features, image_features):
 
     text_embedding_similarity = F.cosine_similarity(text_features.unsqueeze(1), text_features.unsqueeze(0), dim=-1)
@@ -121,7 +121,6 @@ def train(model, data, epoch, optimizer, scaler, scheduler, args):
     end = time.time()
     
     #! AWP Training
-
     if args.adv_train == 'True':
         logging.info(f'Doing AWP adversial training start from epoch {args.adv_start_epoch}, Now is epoch ${epoch}')
         awp = AWP(model, optimizer, adv_lr=1, adv_eps=0.0001)
