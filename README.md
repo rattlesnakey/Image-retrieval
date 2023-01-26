@@ -1,7 +1,4 @@
 # Multimodal Retrieval Track
-
-This repo is the 7th strategy in [Chinese Multimodal Retrieval task](https://tianchi.aliyun.com/competition/entrance/532031/introduction)
-
 ## Setup
 
 To install the requirements, run the following command:
